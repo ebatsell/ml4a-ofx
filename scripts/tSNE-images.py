@@ -13,7 +13,7 @@ from sklearn.manifold import TSNE
 from scipy.spatial import distance
 
 def process_arguments(args):
-    parser = argparse.ArgumentParser(description='tSNE on audio')
+    parser = argparse.ArgumentParser(description='tSNE on images')
     parser.add_argument('--images_path', action='store', help='path to directory of images')
     parser.add_argument('--output_path', action='store', help='path to where to put output json file')
     parser.add_argument('--num_dimensions', action='store', default=2, help='dimensionality of t-SNE points (default 2)')
@@ -40,8 +40,8 @@ def find_candidate_images(images_path):
     for root, dirs, files in os.walk(images_path):
         for name in files:
             file_path = os.path.abspath(os.path.join(root, name))
-            if ((os.path.splitext(name)[1]).lower() in ['.jpg','.png','.jpeg']):
-                images.append(file_path)
+            #if ((os.path.splitext(name)[1]).lower() in ['.jpg','.png','.jpeg']):
+		    images.append(file_path)
     return images
 
 def analyze_images(images_path):
@@ -56,7 +56,11 @@ def analyze_images(images_path):
     images = []
     for idx,image_path in enumerate(candidate_images):
         file_path = join(images_path,image_path)
-        img = get_image(file_path, input_shape);
+		try:
+		    img = get_image(file_path, input_shape)
+		except:
+			print("Skipping due to an error processing image")
+			img = None
         if img is not None:
             print("getting activations for %s %d/%d" % (image_path,idx,len(candidate_images)))
             acts = feat_extractor.predict(img)[0]
